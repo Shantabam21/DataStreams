@@ -9,8 +9,6 @@ import java.nio.file.Path;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main extends JFrame {
     private JTextArea originalArea, filteredArea;
     private JTextField searchField;
@@ -23,7 +21,6 @@ public class Main extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Text areas
         originalArea = new JTextArea();
         filteredArea = new JTextArea();
         originalArea.setEditable(false);
@@ -34,7 +31,6 @@ public class Main extends JFrame {
         split.setDividerLocation(350);
         add(split, BorderLayout.CENTER);
 
-        // Bottom panel for buttons and search
         JPanel bottom = new JPanel();
         searchField = new JTextField(15);
         JButton loadBtn = new JButton("Load File");
@@ -48,7 +44,6 @@ public class Main extends JFrame {
         bottom.add(quitBtn);
         add(bottom, BorderLayout.SOUTH);
 
-        // Button actions
         loadBtn.addActionListener(e -> loadFile());
         searchBtn.addActionListener(e -> searchFile());
         quitBtn.addActionListener(e -> System.exit(0));
@@ -63,7 +58,7 @@ public class Main extends JFrame {
             try {
                 allLines = Files.readAllLines(currentFile);
                 originalArea.setText(String.join("\n", allLines));
-                filteredArea.setText(""); // clear previous results
+                filteredArea.setText("");
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, "Error reading file: " + ex.getMessage());
             }
