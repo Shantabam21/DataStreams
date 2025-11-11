@@ -1,15 +1,93 @@
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+public class Main extends JFrame {
+    private JTextArea originalArea, filteredArea;
+    private JTextField searchField;
+    private Path currentFile;
+    private List<String> allLines = new ArrayList<>();
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+    public Main() {
+        setTitle("Data Stream Search");
+        setSize(700, 500);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Text areas
+        originalArea = new JTextArea();
+        filteredArea = new JTextArea();
+        originalArea.setEditable(false);
+        filteredArea.setEditable(false);
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                new JScrollPane(originalArea), new JScrollPane(filteredArea));
+        split.setDividerLocation(350);
+        add(split, BorderLayout.CENTER);
+
+        // Bottom panel for buttons and search
+        JPanel bottom = new JPanel();
+        searchField = new JTextField(15);
+        JButton loadBtn = new JButton("Load File");
+        JButton searchBtn = new JButton("Search");
+        JButton quitBtn = new JButton("Quit");
+
+        bottom.add(new JLabel("Search:"));
+        bottom.add(searchField);
+        bottom.add(loadBtn);
+        bottom.add(searchBtn);
+        bottom.add(quitBtn);
+        add(bottom, BorderLayout.SOUTH);
+
+        // Button actions
+        loadBtn.addActionListener(e -> loadFile());
+        searchBtn.addActionListener(e -> searchFile());
+        quitBtn.addActionListener(e -> System.exit(0));
+
+        setVisible(true);
+    }
+
+    private void loadFile() {
+        JFileChooser chooser = new JFileChooser();
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            currentFile = chooser.getSelectedFile().toPath();
+            try {
+                allLines = Files.readAllLines(currentFile);
+                originalArea.setText(String.join("\n", allLines));
+                filteredArea.setText(""); // clear previous results
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Error reading file: " + ex.getMessage());
+            }
         }
+    }
+
+    private void searchFile() {
+        if (allLines.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please load a file first!");
+            return;
+        }
+        String term = searchField.getText().trim().toLowerCase();
+        if (term.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Enter a search term.");
+            return;
+        }
+
+        List<String> filtered = allLines.stream()
+                .filter(l -> l.toLowerCase().contains(term))
+                .collect(Collectors.toList());
+        filteredArea.setText(String.join("\n", filtered));
+    }
+
+    public static void main(String[] args) {
+        new Main();
     }
 }
